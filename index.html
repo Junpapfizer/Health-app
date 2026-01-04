@@ -85,7 +85,7 @@
         // ==========================================
         // ⚠️ ใส่ ID ใหม่ของคุณที่นี่
         const LIFF_ID = "2008799065-MIMzWyU2"; 
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztDUbzcXWa74papyJM4-yLFoy0WePBm50Y9PPDNCAefdYAac1YpWTC2pLq4JccLXQn/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxJGgjsvL_2AoVk8d_EI14zLRa2RdiggmCUbK6SFRZjmaIDoxJJ_Kf7lUZziw1DZBT4/exec";
         // ==========================================
 
         function showSection(id) {
@@ -114,41 +114,101 @@
         }
         main();
 
-        async function sendData(type) {
-            // เช็คข้อมูลก่อนส่ง
-            if (type === 'bp') {
-                if(!document.getElementById('sys').value) { alert("กรุณากรอกความดัน"); return; }
-            }
-
-            try {
-                const profile = await liff.getProfile();
-                let data = { userId: profile.userId, type: type };
+        nt.getElementById('pulse').value;
                 
-                if(type === 'bmi') {
-                    data.weight = document.getElementById('weight').value;
-                    data.height = document.getElementById('height').value;
-                } else if(type === 'bp') {
-                    data.sys = document.getElementById('sys').value;
-                    data.dia = document.getElementById('dia').value;
-                    data.pulse = document.getElementById('pulse').value;
-                }
 
-                document.getElementById('status-msg').innerText = "กำลังบันทึก...";
-                document.getElementById('status-msg').style.display = 'block';
-                
-                // ส่งข้อมูล
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(data)
-                });
+            async function sendData(type) {
+    // 1. ดึงข้อมูล Profile ของคนใช้
+    const profile = await liff.getProfile();
+    let data = { userId: profile.userId, type: type };
+    
+    // ตัวแปรสำหรับเก็บข้อความที่จะเด้งโชว์
+    let summaryMessage = "";
 
-                alert("✅ บันทึกสำเร็จ!");
-                liff.closeWindow();
-            } catch (err) {
-                alert("❌ บันทึกไม่สำเร็จ: " + err);
-                document.getElementById('status-msg').innerText = "ลองกดบันทึกใหม่อีกครั้ง";
-            }
-        }
+    // ==========================================
+    // 🟢 ส่วนที่ 1: ถ้าเป็นหน้า BMI
+    // ==========================================
+    if(type === 'bmi') {
+        // รับค่า
+        let w = parseFloat(document.getElementById('weight').value);
+        let h = parseFloat(document.getElementById('height').value);
+        
+        // เช็คว่ากรอกครบไหม
+        if(!w || !h) { alert("กรุณากรอกน้ำหนักและส่วนสูงครับ"); return; }
+
+        data.weight = w;
+        data.height = h;
+
+        // คำนวณ
+        let bmi = w / Math.pow(h/100, 2);
+        let status = "ปกติ";
+        if (bmi < 18.5) status = "ผอม";
+        else if (bmi >= 23 && bmi < 25) status = "ท้วม";
+        else if (bmi >= 25 && bmi < 30) status = "อ้วน";
+        else if (bmi >= 30) status = "อ้วนมาก";
+
+        // เตรียมข้อความ
+        summaryMessage = `📊 ผลการบันทึก BMI\n` +
+                         `----------------\n` +
+                         `น้ำหนัก: ${w} kg\n` +
+                         `ส่วนสูง: ${h} cm\n` +
+                         `ค่า BMI: ${bmi.toFixed(2)}\n` +
+                         `ผลวิเคราะห์: ${status}`;
+    } 
+    
+    // ==========================================
+    // 🔴 ส่วนที่ 2: ถ้าเป็นหน้า ความดัน (เพิ่มให้แล้วครับ)
+    // ==========================================
+    else if(type === 'bp') {
+        // รับค่า
+        let sys = parseInt(document.getElementById('sys').value);
+        let dia = parseInt(document.getElementById('dia').value);
+        let pulse = document.getElementById('pulse').value;
+
+        // เช็คว่ากรอกครบไหม
+        if(!sys || !dia) { alert("กรุณากรอกค่าความดันให้ครบครับ"); return; }
+
+        data.sys = sys;
+        data.dia = dia;
+        data.pulse = pulse;
+
+        // วิเคราะห์ผล (เกณฑ์คร่าวๆ)
+        let bpStatus = "ความดันปกติ (Normal) 🟢";
+        if (sys >= 140 || dia >= 90) bpStatus = "ความดันสูง (High) 🔴";
+        else if (sys >= 130 || dia >= 85) bpStatus = "เริ่มสูง (Elevated) 🟠";
+        else if (sys < 90 || dia < 60) bpStatus = "ความดันต่ำ (Low) 🟡";
+
+        // เตรียมข้อความ
+        summaryMessage = `❤️ ผลการบันทึกความดัน\n` +
+                         `----------------\n` +
+                         `ความดัน: ${sys} / ${dia}\n` +
+                         `ชีพจร: ${pulse} ครั้ง/นาที\n` +
+                         `ผลวิเคราะห์: ${bpStatus}`;
+    }
+
+    // ==========================================
+    // 🟡 ส่วนที่ 3: ส่งข้อมูลและแจ้งเตือน
+    // ==========================================
+    document.getElementById('status-msg').innerText = "กำลังบันทึกข้อมูล...";
+    
+    try {
+        // ส่งไป Google Sheets (เงียบๆ)
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+
+        // ✅ เด้งโชว์สรุปผลทันที! (คนไข้ชอบตรงนี้)
+        alert(summaryMessage);
+        
+        // ปิดหน้าต่าง
+        liff.closeWindow();
+
+    } catch (err) {
+        alert("❌ เกิดข้อผิดพลาด: " + err);
+    }
+}
+        
     </script>
 </body>
 </html>
