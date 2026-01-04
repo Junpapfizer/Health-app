@@ -1,184 +1,269 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>บันทึกสุขภาพ</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        body { font-family: 'Sarabun', sans-serif; padding: 20px; background-color: #f0f2f5; margin:0; }
-        
-        /* การ์ดพื้นหลัง */
-        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; display: none; }
-        
-        h2 { text-align: center; margin-top: 0; font-size: 24px; }
-        label { display: block; margin-top: 15px; font-weight: bold; color: #555; }
-        
-        /* ช่องกรอกข้อมูล */
-        input { width: 100%; padding: 15px; margin-top: 8px; border: 1px solid #ddd; border-radius: 12px; box-sizing: border-box; font-size: 18px; background: #fcfcfc; }
-        input:focus { border-color: #00B900; outline: none; background: #fff; }
+      body {
+        font-family: "Sarabun", sans-serif;
+        padding: 20px;
+        background-color: #f0f2f5;
+        margin: 0;
+      }
 
-        /* ปุ่มกด */
-        button { width: 100%; padding: 18px; border: none; border-radius: 50px; font-size: 20px; color: white; margin-top: 25px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        button:active { transform: scale(0.98); }
-        .btn-green { background-color: #06c755; box-shadow: 0 4px 10px rgba(6, 199, 85, 0.3); }
-        .btn-pink { background-color: #ff5e57; box-shadow: 0 4px 10px rgba(255, 94, 87, 0.3); }
+      /* การ์ดพื้นหลัง */
+      .card {
+        background: white;
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+        display: none;
+      }
 
-        /* หน้าสรุป */
-        .summary-img { width: 100%; border-radius: 10px; margin-top: 15px; }
-        .stat-box { background: #eef1f5; padding: 15px; border-radius: 10px; margin-top: 10px; text-align: center; }
-        .stat-val { font-size: 24px; font-weight: bold; color: #333; }
-        
-        #status-msg { text-align: center; color: #888; font-size: 14px; margin-top: 20px; }
+      h2 {
+        text-align: center;
+        margin-top: 0;
+        font-size: 24px;
+      }
+      label {
+        display: block;
+        margin-top: 15px;
+        font-weight: bold;
+        color: #555;
+      }
+
+      /* ช่องกรอกข้อมูล */
+      input {
+        width: 100%;
+        padding: 15px;
+        margin-top: 8px;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        box-sizing: border-box;
+        font-size: 18px;
+        background: #fcfcfc;
+      }
+      input:focus {
+        border-color: #00b900;
+        outline: none;
+        background: #fff;
+      }
+
+      /* ปุ่มกด */
+      button {
+        width: 100%;
+        padding: 18px;
+        border: none;
+        border-radius: 50px;
+        font-size: 20px;
+        color: white;
+        margin-top: 25px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.2s;
+      }
+      button:active {
+        transform: scale(0.98);
+      }
+      .btn-green {
+        background-color: #06c755;
+        box-shadow: 0 4px 10px rgba(6, 199, 85, 0.3);
+      }
+      .btn-pink {
+        background-color: #ff5e57;
+        box-shadow: 0 4px 10px rgba(255, 94, 87, 0.3);
+      }
+
+      /* หน้าสรุป */
+      .summary-img {
+        width: 100%;
+        border-radius: 10px;
+        margin-top: 15px;
+      }
+      .stat-box {
+        background: #eef1f5;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 10px;
+        text-align: center;
+      }
+      .stat-val {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      #status-msg {
+        text-align: center;
+        color: #888;
+        font-size: 14px;
+        margin-top: 20px;
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div id="section-bmi" class="card">
-        <h2 style="color: #06c755;">🏋️ บันทึก BMI</h2>
-        <label>น้ำหนัก (kg)</label>
-        <input type="number" id="weight" placeholder="เช่น 65.5">
-        <label>ส่วนสูง (cm)</label>
-        <input type="number" id="height" placeholder="เช่น 170">
-        <button class="btn-green" onclick="sendData('bmi')">บันทึก BMI</button>
+      <h2 style="color: #06c755">🏋️ บันทึก BMI</h2>
+      <label>น้ำหนัก (kg)</label>
+      <input type="number" id="weight" placeholder="เช่น 65.5" />
+      <label>ส่วนสูง (cm)</label>
+      <input type="number" id="height" placeholder="เช่น 170" />
+      <button class="btn-green" onclick="sendData('bmi')">บันทึก BMI</button>
     </div>
 
     <div id="section-bp" class="card">
-        <h2 style="color: #ff5e57;">❤️ ความดันโลหิต</h2>
-        <div style="display: flex; gap: 10px;">
-            <div style="flex: 1;">
-                <label>ตัวบน (SYS)</label>
-                <input type="number" id="sys" placeholder="120">
-            </div>
-            <div style="flex: 1;">
-                <label>ตัวล่าง (DIA)</label>
-                <input type="number" id="dia" placeholder="80">
-            </div>
+      <h2 style="color: #ff5e57">❤️ ความดันโลหิต</h2>
+      <div style="display: flex; gap: 10px">
+        <div style="flex: 1">
+          <label>ตัวบน (SYS)</label>
+          <input type="number" id="sys" placeholder="120" />
         </div>
-        <label>ชีพจร (Pulse)</label>
-        <input type="number" id="pulse" placeholder="ครั้ง/นาที (เช่น 75)">
-        <button class="btn-pink" onclick="sendData('bp')">บันทึกความดัน</button>
+        <div style="flex: 1">
+          <label>ตัวล่าง (DIA)</label>
+          <input type="number" id="dia" placeholder="80" />
+        </div>
+      </div>
+      <label>ชีพจร (Pulse)</label>
+      <input type="number" id="pulse" placeholder="ครั้ง/นาที (เช่น 75)" />
+      <button class="btn-pink" onclick="sendData('bp')">บันทึกความดัน</button>
     </div>
 
     <div id="section-summary" class="card">
-        <h2 style="color: #4a90e2;">📊 สรุปสุขภาพ</h2>
-        
-        <img src="https://quickchart.io/chart?c={type:'line',data:{labels:['จ','อ','พ','พฤ','ศ'],datasets:[{label:'ความดัน',data:[120,118,122,121,119],borderColor:'red',fill:false}]}}" class="summary-img">
-        
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <div class="stat-box" style="flex: 1;">
-                <div>เฉลี่ย 7 วัน</div>
-                <div class="stat-val" style="color: #ff5e57;">120/80</div>
-            </div>
-            <div class="stat-box" style="flex: 1;">
-                <div>BMI ล่าสุด</div>
-                <div class="stat-val" style="color: #06c755;">22.5</div>
-            </div>
+      <h2 style="color: #4a90e2">📊 สรุปสุขภาพ</h2>
+
+      <img
+        src="https://quickchart.io/chart?c={type:'line',data:{labels:['จ','อ','พ','พฤ','ศ'],datasets:[{label:'ความดัน',data:[120,118,122,121,119],borderColor:'red',fill:false}]}}"
+        class="summary-img"
+      />
+
+      <div style="display: flex; gap: 10px; margin-top: 15px">
+        <div class="stat-box" style="flex: 1">
+          <div>เฉลี่ย 7 วัน</div>
+          <div class="stat-val" style="color: #ff5e57">120/80</div>
         </div>
-        <p style="text-align: center; color: #888; margin-top: 10px;">ข้อมูลนี้เป็นตัวอย่างการแสดงผล</p>
+        <div class="stat-box" style="flex: 1">
+          <div>BMI ล่าสุด</div>
+          <div class="stat-val" style="color: #06c755">22.5</div>
+        </div>
+      </div>
+      <p style="text-align: center; color: #888; margin-top: 10px">
+        ข้อมูลนี้เป็นตัวอย่างการแสดงผล
+      </p>
     </div>
 
     <div id="status-msg">กำลังโหลด...</div>
 
     <script>
-        // ==========================================
-        // ⚠️ ใส่ ID ใหม่ของคุณที่นี่
-        const LIFF_ID = "2008799065-MIMzWyU2"; 
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzT8w-VN2j-r5PzByvkC7hKgFlN8zsoGS7YeZ95VcyVaa1snTrRRxJPlY0qaLmXgAmq/exec";
-        // ==========================================
+      // ==========================================
+      // ⚠️ ใส่ ID ใหม่ของคุณที่นี่
+      const LIFF_ID = "2008799065-MIMzWyU2";
+      const SCRIPT_URL =
+        "https://script.google.com/macros/s/AKfycbzT8w-VN2j-r5PzByvkC7hKgFlN8zsoGS7YeZ95VcyVaa1snTrRRxJPlY0qaLmXgAmq/exec";
+      // ==========================================
 
-        function showSection(id) {
-            document.querySelectorAll('.card').forEach(el => el.style.display = 'none');
-            document.getElementById(id).style.display = 'block';
+      function showSection(id) {
+        document
+          .querySelectorAll(".card")
+          .forEach((el) => (el.style.display = "none"));
+        document.getElementById(id).style.display = "block";
+      }
+
+      async function main() {
+        try {
+          await liff.init({ liffId: LIFF_ID });
+          document.getElementById("status-msg").style.display = "none";
+
+          if (!liff.isLoggedIn()) liff.login();
+
+          // เช็คว่ากดมาจากปุ่มไหน
+          const urlParams = new URLSearchParams(window.location.search);
+          const page = urlParams.get("page");
+
+          if (page === "bp") showSection("section-bp");
+          else if (page === "summary") showSection("section-summary");
+          else showSection("section-bmi"); // ค่าเริ่มต้น
+        } catch (err) {
+          document.getElementById("status-msg").innerText =
+            "เกิดข้อผิดพลาด: " + err;
         }
+      }
+      main();
 
-        async function main() {
-            try {
-                await liff.init({ liffId: LIFF_ID });
-                document.getElementById('status-msg').style.display = 'none';
-                
-                if (!liff.isLoggedIn()) liff.login();
+      nt.getElementById("pulse").value;
 
-                // เช็คว่ากดมาจากปุ่มไหน
-                const urlParams = new URLSearchParams(window.location.search);
-                const page = urlParams.get('page');
+      async function sendData(type) {
+        // 1. ล็อกปุ่มกันกดซ้ำ
+        const allButtons = document.querySelectorAll("button");
+        allButtons.forEach((btn) => {
+          btn.disabled = true;
+          btn.style.opacity = "0.6";
+          btn.innerText = "⏳ กำลังตรวจสอบ...";
+        });
 
-                if (page === 'bp') showSection('section-bp');
-                else if (page === 'summary') showSection('section-summary');
-                else showSection('section-bmi'); // ค่าเริ่มต้น
+        try {
+          const profile = await liff.getProfile();
+          let data = { userId: profile.userId, type: type };
+          let summaryMessage = "";
 
-            } catch (err) {
-                document.getElementById('status-msg').innerText = "เกิดข้อผิดพลาด: " + err;
-            }
-        }
-        main();
-
-        nt.getElementById('pulse').value;
-
-        async function sendData(type) {
-    // 1. ล็อกปุ่มกันกดซ้ำ
-    const allButtons = document.querySelectorAll('button');
-    allButtons.forEach(btn => {
-        btn.disabled = true;
-        btn.style.opacity = "0.6";
-        btn.innerText = "⏳ กำลังตรวจสอบ...";
-    });
-
-    try {
-        const profile = await liff.getProfile();
-        let data = { userId: profile.userId, type: type };
-        let summaryMessage = "";
-
-        // ==========================================
-        // 🟢 ตรวจสอบหน้า BMI
-        // ==========================================
-        if(type === 'bmi') {
+          // ==========================================
+          // 🟢 ตรวจสอบหน้า BMI
+          // ==========================================
+          if (type === "bmi") {
             // ดึงค่ามาเตรียมไว้
-            let wInput = document.getElementById('weight').value;
-            let hInput = document.getElementById('height').value;
+            let wInput = document.getElementById("weight").value;
+            let hInput = document.getElementById("height").value;
 
             // 🛡️ พื้นฐาน 1: เช็คว่าช่องว่างไหม?
-            if(wInput === "" || hInput === "") {
-                throw new Error("กรุณากรอกทั้ง 'น้ำหนัก' และ 'ส่วนสูง' ครับ");
+            if (wInput === "" || hInput === "") {
+              throw new Error("กรุณากรอกทั้ง 'น้ำหนัก' และ 'ส่วนสูง' ครับ");
             }
 
             let w = parseFloat(wInput);
             let h = parseFloat(hInput);
 
             // 🛡️ พื้นฐาน 2: เช็คว่าเป็นตัวเลขที่ถูกต้องไหม? (ไม่ติดลบ, ไม่ใช่ 0)
-            if(w <= 0 || h <= 0) {
-                throw new Error("น้ำหนักและส่วนสูง ต้องมากกว่า 0 ครับ");
+            if (w <= 0 || h <= 0) {
+              throw new Error("น้ำหนักและส่วนสูง ต้องมากกว่า 0 ครับ");
             }
-            if(h < 50 || h > 300) { // เช็คความเป็นไปได้ (สูงไม่ถึง 50 ซม. หรือเกิน 3 เมตร คงไม่ใช่คน)
-                throw new Error("ส่วนสูงดูผิดปกติ กรุณาตรวจสอบใหม่ครับ");
+            if (h < 50 || h > 300) {
+              // เช็คความเป็นไปได้ (สูงไม่ถึง 50 ซม. หรือเกิน 3 เมตร คงไม่ใช่คน)
+              throw new Error("ส่วนสูงดูผิดปกติ กรุณาตรวจสอบใหม่ครับ");
             }
 
             data.weight = w;
             data.height = h;
 
             // คำนวณ BMI
-            let bmi = w / Math.pow(h/100, 2);
+            let bmi = w / Math.pow(h / 100, 2);
             let status = "ปกติ";
             if (bmi < 18.5) status = "ผอม";
             else if (bmi >= 23 && bmi < 25) status = "ท้วม";
             else if (bmi >= 25 && bmi < 30) status = "อ้วน";
             else if (bmi >= 30) status = "อ้วนมาก";
 
-            summaryMessage = `📊 BMI สำเร็จ!\nBMI: ${bmi.toFixed(2)}\nผล: ${status}`;
-        } 
-        
-        // ==========================================
-        // 🔴 ตรวจสอบหน้า ความดัน (BP)
-        // ==========================================
-        else if(type === 'bp') {
-            let sysInput = document.getElementById('sys').value;
-            let diaInput = document.getElementById('dia').value;
-            let pulseInput = document.getElementById('pulse').value;
+            summaryMessage = `📊 BMI สำเร็จ!\nBMI: ${bmi.toFixed(
+              2
+            )}\nผล: ${status}`;
+          }
+
+          // ==========================================
+          // 🔴 ตรวจสอบหน้า ความดัน (BP)
+          // ==========================================
+          else if (type === "bp") {
+            let sysInput = document.getElementById("sys").value;
+            let diaInput = document.getElementById("dia").value;
+            let pulseInput = document.getElementById("pulse").value;
 
             // 🛡️ พื้นฐาน 1: เช็คว่ากรอกครบทุกช่องไหม (รวมชีพจร)
-            if(sysInput === "" || diaInput === "" || pulseInput === "") {
-                throw new Error("กรุณากรอกให้ครบทุกช่อง (ตัวบน, ตัวล่าง, ชีพจร)");
+            if (sysInput === "" || diaInput === "" || pulseInput === "") {
+              throw new Error("กรุณากรอกให้ครบทุกช่อง (ตัวบน, ตัวล่าง, ชีพจร)");
             }
 
             let sys = parseInt(sysInput);
@@ -186,11 +271,11 @@
             let pulse = parseInt(pulseInput);
 
             // 🛡️ พื้นฐาน 2: เช็คค่าว่าเป็นไปได้ไหม
-            if(sys <= 0 || dia <= 0 || pulse <= 0) {
-                throw new Error("ค่าความดันและชีพจร ต้องไม่เป็น 0 หรือติดลบ");
+            if (sys <= 0 || dia <= 0 || pulse <= 0) {
+              throw new Error("ค่าความดันและชีพจร ต้องไม่เป็น 0 หรือติดลบ");
             }
-            if(sys > 300 || dia > 200) {
-                throw new Error("ค่าความดันสูงเกินจริง กรุณาเช็คตัวเลขใหม่");
+            if (sys > 300 || dia > 200) {
+              throw new Error("ค่าความดันสูงเกินจริง กรุณาเช็คตัวเลขใหม่");
             }
 
             data.sys = sys;
@@ -201,34 +286,32 @@
             if (sys >= 140 || dia >= 90) bpStatus = "สูง (ระวัง)";
 
             summaryMessage = `❤️ ความดันสำเร็จ!\nBP: ${sys}/${dia}\nผล: ${bpStatus}`;
-        }
+          }
 
-        // 2. ถ้าผ่านด่านตรวจสอบทั้งหมด -> ส่งข้อมูล
-        document.getElementById('status-msg').innerText = "กำลังบันทึก...";
-        
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify(data)
-        });
+          // 2. ถ้าผ่านด่านตรวจสอบทั้งหมด -> ส่งข้อมูล
+          document.getElementById("status-msg").innerText = "กำลังบันทึก...";
 
-        // 3. แจ้งเตือนสำเร็จ
-        alert(summaryMessage);
-        liff.closeWindow();
+          await fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify(data),
+          });
 
-    } catch (err) {
-        // ❌ ถ้าติดด่านไหน ให้แจ้งเตือนด่านนั้น
-        alert("⚠️ " + err.message);
-        
-        // ปลดล็อกปุ่มให้กดแก้ไขได้
-        allButtons.forEach(btn => {
+          // 3. แจ้งเตือนสำเร็จ
+          alert(summaryMessage);
+          liff.closeWindow();
+        } catch (err) {
+          // ❌ ถ้าติดด่านไหน ให้แจ้งเตือนด่านนั้น
+          alert("⚠️ " + err.message);
+
+          // ปลดล็อกปุ่มให้กดแก้ไขได้
+          allButtons.forEach((btn) => {
             btn.disabled = false;
             btn.style.opacity = "1";
             btn.innerText = "บันทึกข้อมูล";
-        });
-        document.getElementById('status-msg').innerText = "";
-    }
-}
-        
+          });
+          document.getElementById("status-msg").innerText = "";
+        }
+      }
     </script>
-</body>
+  </body>
 </html>
