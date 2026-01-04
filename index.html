@@ -165,7 +165,7 @@
       // ⚠️ ใส่ ID ใหม่ของคุณที่นี่
       const LIFF_ID = "2008799065-MIMzWyU2";
       const SCRIPT_URL =
-        "https://script.google.com/macros/s/AKfycbzT8w-VN2j-r5PzByvkC7hKgFlN8zsoGS7YeZ95VcyVaa1snTrRRxJPlY0qaLmXgAmq/exec";
+        "https://script.google.com/macros/s/AKfycbzFz7eGqxTmn5U_-Bh8KpjguPZRxeRC6lC3TGGWPokBHAF6BxwhGi6F0dGt7VTMocjq/exec";
       // ==========================================
 
       function showSection(id) {
@@ -199,6 +199,13 @@
       nt.getElementById("pulse").value;
 
       async function sendData(type) {
+        const profile = await liff.getProfile();
+// เพิ่ม profile.displayName เข้าไปในห่อข้อมูล
+let data = { 
+    userId: profile.userId, 
+    displayName: profile.displayName,  // <--- เพิ่มบรรทัดนี้ครับ
+    type: type 
+};
         // 1. ล็อกปุ่มกันกดซ้ำ
         const allButtons = document.querySelectorAll("button");
         allButtons.forEach((btn) => {
