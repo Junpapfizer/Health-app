@@ -28,7 +28,7 @@ async function main() {
         const page = urlParams.get('page');
 
         if (page === 'bp') showSection('section-bp');
-        else if (page === 'salt') showSection('section-summary');
+        else if (page === 'salt') showSection('section-salt');
         else showSection('section-bmi'); 
 
     } catch (err) {
