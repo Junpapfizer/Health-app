@@ -8,7 +8,8 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwOUnKV4NfnXh4XQUif
 function showSection(sectionId) {
     document.getElementById('section-bmi').style.display = 'none';
     document.getElementById('section-bp').style.display = 'none';
-    document.getElementById('section-summary').style.display = 'none';
+    document.getElementById('section-salt'.style.display = 'none')
+    //document.getElementById('section-summary').style.display = 'none';
     document.getElementById(sectionId).style.display = 'block';
 }
 
@@ -27,7 +28,7 @@ async function main() {
         const page = urlParams.get('page');
 
         if (page === 'bp') showSection('section-bp');
-        else if (page === 'summary') showSection('section-summary');
+        else if (page === 'summary' || page === 'salt') showSection('section-summary');
         else showSection('section-bmi'); 
 
     } catch (err) {
