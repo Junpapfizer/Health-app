@@ -5,18 +5,11 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwOUnKV4NfnXh4XQUif
 // ==========================================
 
 // ฟังก์ชันสลับหน้าจอ
-// ฟังก์ชันสลับหน้าจอ (แก้ให้รู้จักหน้า salt)
 function showSection(sectionId) {
-    // สั่งปิดทุกหน้าก่อน
     document.getElementById('section-bmi').style.display = 'none';
     document.getElementById('section-bp').style.display = 'none';
-    
-    // ✅ เพิ่มบรรทัดนี้ เพื่อปิดหน้าเกลือด้วย
-    if(document.getElementById('section-salt')) {
-        document.getElementById('section-salt').style.display = 'none';
-    }
-
-    // เปิดหน้าเป้าหมาย
+    document.getElementById('section-salt').style.display = 'none';
+    //document.getElementById('section-summary').style.display = 'none';
     document.getElementById(sectionId).style.display = 'block';
 }
 
