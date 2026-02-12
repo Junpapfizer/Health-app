@@ -1,19 +1,105 @@
 // ==========================================
-// ⚙️ ตั้งค่าระบบ (ใช้ ID เดิมของคุณ)
+// ⚙️ ตั้งค่าระบบ
 const LIFF_ID = "2008799065-MIMzWyU2"; 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwOUnKV4NfnXh4XQUifMoOk8zMgDXujqKUHTQlDG-jmlh5i5f6BwazyPY7JB1NOm06/exec";
 // ==========================================
+
+// ข้อมูลโซเดียม (mg ต่อ 1 ช้อนชา)
+const sodiumData = {
+    "น้ำปลา (400 mg)": 400,
+    "ซีอิ๊วขาว (350 mg)": 350,
+    "ซอสหอยนางรม (300 mg)": 300,
+    "ซอสปรุงรส (320 mg)": 320,
+    "เกลือ (2300 mg)": 2300,
+    "ผงชูรส (150 mg)": 150
+};
 
 // ฟังก์ชันสลับหน้าจอ
 function showSection(sectionId) {
     document.getElementById('section-bmi').style.display = 'none';
     document.getElementById('section-bp').style.display = 'none';
-    document.getElementById('section-salt').style.display = 'none';
-    //document.getElementById('section-summary').style.display = 'none';
+    
+    // เช็คก่อนว่ามีหน้า salt ไหมเพื่อกัน Error
+    if(document.getElementById('section-salt')) {
+        document.getElementById('section-salt').style.display = 'none';
+    }
+
     document.getElementById(sectionId).style.display = 'block';
+    
+    // ถ้าเปิดหน้าเกลือครั้งแรก และยังไม่มีแถว ให้เพิ่มแถวแรกอัตโนมัติ
+    if(sectionId === 'section-salt' && document.getElementById("inputs-container").children.length === 0) {
+        addRow();
+    }
 }
 
-// ฟังก์ชันเริ่มต้นทำงาน
+// ฟังก์ชันเพิ่มแถวเครื่องปรุง
+function addRow() {
+    const div = document.createElement("div");
+    div.className = "salt-row";
+
+    let select = document.createElement("select");
+    select.className = "salt-select";
+    for (let key in sodiumData) {
+        let option = document.createElement("option");
+        option.text = key;
+        option.value = sodiumData[key];
+        select.add(option);
+    }
+
+    let input = document.createElement("input");
+    input.type = "number";
+    input.placeholder = "ช้อนชา";
+    input.className = "salt-input";
+    input.min = "0";
+    input.step = "0.5";
+
+    let deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "❌";
+    deleteBtn.className = "salt-del-btn";
+    deleteBtn.onclick = function() { div.remove(); };
+
+    div.appendChild(select);
+    div.appendChild(input);
+    div.appendChild(deleteBtn);
+
+    document.getElementById("inputs-container").appendChild(div);
+}
+
+// ฟังก์ชันคำนวณโซเดียม
+function calculateSodium() {
+    let total = 0;
+    const rows = document.getElementById("inputs-container").children;
+
+    for (let row of rows) {
+        // row.children[0] คือ select, [1] คือ input
+        const sodiumPerTsp = row.children[0].value;
+        const amount = row.children[1].value;
+
+        if (amount) {
+            total += sodiumPerTsp * amount;
+        }
+    }
+
+    const limit = 2000;
+    const percent = ((total / limit) * 100).toFixed(1);
+
+    let message = `โซเดียมรวม: ${total.toFixed(0)} mg<br>`;
+    message += `(คิดเป็น ${percent}% ของโควต้าต่อวัน)<br>`;
+
+    if (total > limit) {
+        message += "<span style='color:red'>🔴 เกินปริมาณที่แนะนำ!</span>";
+    } else {
+        message += "<span style='color:green'>🟢 ยังไม่เกินปริมาณที่แนะนำ</span>";
+    }
+
+    // แสดงผล
+    document.getElementById("result-salt").innerHTML = message;
+    
+    // เก็บค่าลงตัวแปรซ่อน เตรียมส่งไป Google Sheet
+    document.getElementById("final-sodium-mg").value = total;
+}
+
+// ฟังก์ชันเริ่มต้นทำงาน Main
 async function main() {
     try {
         await liff.init({ liffId: LIFF_ID });
@@ -28,7 +114,7 @@ async function main() {
         const page = urlParams.get('page');
 
         if (page === 'bp') showSection('section-bp');
-        else if (page === 'salt') showSection('section-salt');
+        else if (page === 'salt' || page === 'summary') showSection('section-salt'); 
         else showSection('section-bmi'); 
 
     } catch (err) {
@@ -39,132 +125,97 @@ main();
 
 // ฟังก์ชันส่งข้อมูล
 async function sendData(type) {
-    // 1. ล็อกปุ่มทันที
     const allButtons = document.querySelectorAll('button');
     allButtons.forEach(btn => {
-        btn.disabled = true;
-        btn.style.opacity = "0.6";
-        btn.innerText = "⏳ กำลังตรวจสอบ...";
+        // อย่าล็อกปุ่มลบแถว หรือปุ่มเพิ่มแถว
+        if(btn.className.includes('btn-green') || btn.className.includes('btn-pink') || btn.className.includes('btn-orange')) {
+            btn.disabled = true;
+            btn.innerText = "⏳ กำลังบันทึก...";
+        }
     });
 
     try {
-        // ดึงข้อมูลพื้นฐานจาก LIFF
         const profile = await liff.getProfile();
-        
         let data = { 
             userId: profile.userId, 
-            displayName: profile.displayName, // ค่าเริ่มต้นเอาชื่อไลน์มาก่อน
+            displayName: profile.displayName, 
             type: type 
         };
-        
         let summaryMessage = "";
 
-        // ==========================================
-        // 🟢 กรณีบันทึก BMI (มีช่องกรอกชื่อเพิ่ม)
-        // ==========================================
+        // 🟢 กรณี BMI
         if(type === 'bmi') {
-            // รับค่าจากช่องกรอก
-            let nameInput = document.getElementById('fullname').value; // <--- รับชื่อที่กรอกเอง
+            let nameInput = document.getElementById('fullname').value;
             let wInput = document.getElementById('weight').value;
             let hInput = document.getElementById('height').value;
 
-            // ตรวจสอบข้อมูล (Validation)
-            if(nameInput === "") throw new Error("กรุณาระบุ 'ชื่อ-นามสกุล' ผู้ตรวจด้วยครับ");
-            if(wInput === "" || hInput === "") throw new Error("กรุณากรอกทั้งน้ำหนักและส่วนสูง");
+            if(nameInput === "") throw new Error("กรุณาระบุชื่อ-นามสกุล");
+            if(wInput === "" || hInput === "") throw new Error("กรุณากรอกข้อมูลให้ครบ");
             
-            let w = parseFloat(wInput);
-            let h = parseFloat(hInput);
-
-            if(w <= 0 || h <= 0) throw new Error("ค่าต้องมากกว่า 0");
-            if(h < 50 || h > 300) throw new Error("ส่วนสูงผิดปกติ");
-
-            // ✅ บันทึกข้อมูล (ใช้ชื่อที่กรอกเอง ทับชื่อไลน์ไปเลย)
             data.displayName = nameInput; 
-            data.weight = w;
-            data.height = h;
+            data.weight = parseFloat(wInput);
+            data.height = parseFloat(hInput);
 
-            // คำนวณ BMI
-            let bmi = w / Math.pow(h/100, 2);
-            let status = "ปกติ ค่า BMI ของท่านอยู่ในเกณฑ์ปกติ ขอให้รับประทานอาหารให้ครบ 5 หมู่ และออกกำลังกายอย่างสม่ำเสมอ เพื่อคงสุขภาพที่ดี";
-            if (bmi < 18.5) status = "ผอม ค่า BMI ของท่านต่ำกว่าเกณฑ์ปกติ แนะนำให้ทานอาหารให้ครบมื้อและเพิ่มโปรตีนและติดตามน้ำหนักอย่างสมำ่เสมอ"; 
-            else if (bmi >= 23 && bmi < 25) status = "ท้วม ค่า BMI ของท่านสูงกว่าเกณฑ์แนะนำให้ควบคุมอาหาร ลดหวาน มัน และ เค็ม เพิ่มการออกกำลังกายอย่างเหมาะสม เพื่อลดความเสี่ยงโรคความดันโลหิตสูงและโรคเรื่้อรัง ";
-            else if (bmi >= 25 && bmi < 30) status = "อ้วน";
-            else if (bmi >= 30) status = "อ้วนมาก";
-
-            summaryMessage = `📊 BMI บันทึกสำเร็จ!\n----------------\nชื่อ: ${nameInput}\nนน: ${w} | สูง: ${h}\nBMI: ${bmi.toFixed(2)}\nผล: ${status}`;
+            let bmi = data.weight / Math.pow(data.height/100, 2);
+            summaryMessage = `📊 BMI บันทึกสำเร็จ!\nชื่อ: ${nameInput}\nBMI: ${bmi.toFixed(2)}`;
         } 
         
-        // ==========================================
-        // 🔴 กรณีบันทึก ความดัน
-        // ==========================================
+        // 🔴 กรณี ความดัน
         else if(type === 'bp') {
-            let sysInput = document.getElementById('sys').value;
-            let diaInput = document.getElementById('dia').value;
-            let pulseInput = document.getElementById('pulse').value;
-
-            if(sysInput === "" || diaInput === "" || pulseInput === "") throw new Error("กรุณากรอกให้ครบทุกช่อง");
-
-            let sys = parseInt(sysInput);
-            let dia = parseInt(diaInput);
-            let pulse = parseInt(pulseInput);
-
-            if(sys <= 0 || dia <= 0 || pulse <= 0) throw new Error("ค่าต้องมากกว่า 0");
-            if(sys > 300 || dia > 200) throw new Error("ค่าสูงเกินจริง");
+            let sys = parseInt(document.getElementById('sys').value);
+            let dia = parseInt(document.getElementById('dia').value);
+            let pulse = parseInt(document.getElementById('pulse').value);
+            
+            if(!sys || !dia) throw new Error("กรุณากรอกค่าความดัน");
 
             data.sys = sys;
             data.dia = dia;
             data.pulse = pulse;
-
-            let bpStatus = "ปกติ 🟢 ค่าความดันโลหิตของท่านอยู่ในเกณฑ์ปกติ ขอให้ดูแลสุขภาพอย่าต่อเนืื่อง ลดเค็ม ออกกำลังกายอย่างสม่ำเสมอ พักผ่อนให้เพียงพอ เพื่อลดความเสี่ยงโรคในอนาาคต";
-            if (sys >= 140 || dia >= 90) bpStatus = "สูง (ควรระวัง) 🔴 ค่าความดันโลหิตของท่านสูงกว่าปกติแนะนำให้ลดอาหารเค็ม ลดอาหารแปรรูป ออกกำลังกายอย่างสมำ่เสมอ และติดตามวัดความดันอย่างต่อเนื่อง หากยังมีค่าสูงอย่างต่อเนื่อง แนะนำให้รับพบเจ้าหน้าที่สาธารณสุขหรือแพทย์ ";
-            else if (sys >= 130 || dia >= 85) bpStatus = "ค่อนข้างสูง 🟠 ค่าความดันโลหิตของท่านค่อนข้างสูงกว่าปกติแนะนำให้ลดอาหารเค็ม ลดอาหารแปรรูป ออกกำลังกายอย่างสมำ่เสมอ และติดตามวัดความดันอย่างต่อเนื่อง หากยังมีค่าสูงอย่างต่อเนื่อง แนะนำให้รับพบเจ้าหน้าที่สาธารณสุขหรือแพทย์ ";
-            else if (sys < 90 || dia < 60) bpStatus = "ต่ำ 🟡 ค่าความดันโลหิตของท่านค่อนข้างต่ำ แนะนำให้พักผ่อนให้เพียงพอดื่มน้ำมากขึ้น หากมีอาการเวียนหัว หน้ามือ หรืออ่อนเพลีย กรุณาติดต่อเจ้าหน้าที่สาธารณสุขหรือแพทย์เพื่อประเมินเพิ่มเติม ";
-
-            summaryMessage = `❤️ ความดัน บันทึกสำเร็จ!\n----------------\nBP: ${sys}/${dia}\nชีพจร: ${pulse}\nผล: ${bpStatus}`;
+            summaryMessage = `❤️ ความดัน บันทึกสำเร็จ!\nBP: ${sys}/${dia}`;
         }
-    // 🟠 กรณีบันทึก เกลือ (Salt) - ฟีเจอร์ใหม่!
+
+        // 🟠 กรณี เกลือ (แบบใหม่ คำนวณโซเดียม)
         else if(type === 'salt') {
             let nameInput = document.getElementById('fullname-salt').value;
-            let saltInput = document.getElementById('salt').value;
+            
+            // ดึงค่าโซเดียมรวมจากตัวแปรซ่อน
+            let totalSodium = parseFloat(document.getElementById("final-sodium-mg").value);
 
             if(nameInput === "") throw new Error("กรุณาระบุชื่อ-นามสกุล");
-            if(saltInput === "") throw new Error("กรุณาระบุปริมาณเกลือ");
-
-            let salt = parseFloat(saltInput);
-            if(salt < 0) throw new Error("ปริมาณเกลือต้องไม่ติดลบ");
+            
+            // ถ้ายังไม่ได้คำนวณ ให้คำนวณก่อน 1 รอบ
+            if(totalSodium === 0 && document.getElementById("inputs-container").children.length > 0) {
+                 calculateSodium();
+                 totalSodium = parseFloat(document.getElementById("final-sodium-mg").value);
+            }
 
             data.displayName = nameInput;
-            data.salt = salt;
+            data.salt = totalSodium; // ส่งค่า mg ไป (ใน Sheet อาจจะเก็บเป็นตัวเลข 2000)
 
-            // --- ตรรกะแจ้งเตือนตามที่คุณต้องการ ---
-            if (salt <= 1) {
-                // ✅ กรณีไม่เกิน
-                summaryMessage = `🧂 บันทึกแล้ว\nเกลือ ${salt} ช้อนชา\n\n✅ วันนี้ใช้ไปแล้ว ${salt} / 1 ช้อนชา\nยังอยู่ในเกณฑ์ที่แนะนำ 👍`;
+            if (totalSodium <= 2000) {
+                summaryMessage = `🧂 บันทึกแล้ว\nโซเดียมรวม: ${totalSodium} mg\n✅ ยังไม่เกินเกณฑ์ที่แนะนำ`;
             } else {
-                // ⚠️ กรณีเกินเกณฑ์
-                summaryMessage = `⚠️ เตือนการบริโภคเกลือ\nวันนี้คุณใช้เกลือไปแล้ว ${salt} ช้อนชา\n\n❌ เกินคำแนะนำ WHO\nแนะนำลดอาหารเค็มในมื้อต่อไป และดื่มน้ำให้เพียงพอ 💧`;
+                summaryMessage = `⚠️ บันทึกแล้ว\nโซเดียมรวม: ${totalSodium} mg\n❌ เกินปริมาณที่แนะนำ (2000mg)!`;
             }
         }
-        // 2. ส่งข้อมูลไป Google Sheets
-        document.getElementById('status-msg').innerText = "กำลังบันทึกข้อมูล...";
-        
+
+        // ส่งข้อมูล
         await fetch(SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify(data)
         });
 
-        // 3. แจ้งเตือนสำเร็จ
         alert(summaryMessage);
         liff.closeWindow();
 
     } catch (err) {
         alert("⚠️ " + err.message);
-        
+        // ปลดล็อกปุ่ม
         allButtons.forEach(btn => {
-            btn.disabled = false;
-            btn.style.opacity = "1";
-            btn.innerText = "บันทึกข้อมูล";
+             if(btn.className.includes('btn-green') || btn.className.includes('btn-pink') || btn.className.includes('btn-orange')) {
+                btn.disabled = false;
+                btn.innerText = "บันทึกข้อมูล";
+            }
         });
-        document.getElementById('status-msg').innerText = "";
     }
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,29 +9,44 @@
     <style>
         body { font-family: 'Sarabun', sans-serif; padding: 20px; background-color: #f5f5f5; margin:0; }
         
+        /* การจัดการหน้าจอ */
         #section-bmi { display: block; } 
         #section-bp { display: none; }
-        #section-salt {display: none;}
-        #section-summary { display: none; }
+        #section-salt { display: none; } /* ต้องมีบรรทัดนี้ ไม่งั้น Error */
 
         .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
         h2 { text-align: center; margin-top: 0; }
         
+        /* สไตล์ปุ่มหลัก */
         button { width: 100%; padding: 15px; border: none; border-radius: 50px; font-size: 18px; color: white; margin-top: 20px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         button:disabled { background-color: #ccc !important; cursor: not-allowed; }
         
         .btn-green { background-color: #28a745; }
         .btn-pink { background-color: #e83e8c; }
+        .btn-orange { background-color: #ff9800; }
         
         input { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         label { display: block; margin-top: 15px; font-weight: bold; }
+
+        /* --- สไตล์เฉพาะของเครื่องคิดเลขโซเดียม --- */
+        .salt-row { display: flex; align-items: center; margin-bottom: 10px; }
+        .salt-select { flex: 2; padding: 8px; border: 1px solid #ddd; border-radius: 5px; margin-right: 5px; }
+        .salt-input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 5px; margin-right: 5px; }
+        .salt-del-btn { flex: 0.5; background: #f44336; padding: 8px; border-radius: 5px; margin-top: 0; color: white; font-weight: bold; }
+        
+        .btn-add-row { background: #4CAF50; margin-top: 10px; font-size: 16px; padding: 10px; }
+        .btn-calc { background: #2196F3; margin-top: 10px; font-size: 16px; padding: 10px; }
+        
+        .result-box { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px; text-align: center; font-weight: bold; border: 1px solid #eee; }
+        /* ------------------------------------- */
 
         #status-msg { text-align: center; color: #666; font-size: 12px; margin-top: 10px; }
     </style>
 </head>
 <body>
+
     <div id="section-bmi" class="card">
-        <h2 style="color: #28a745;"> บันทึก BMI </h2>
+        <h2 style="color: #28a745;">🏋️ บันทึก BMI</h2>
         <label>ชื่อ-นามสกุล (ผู้ตรวจ)</label>
         <input type="text" id="fullname" placeholder="ระบุชื่อ-นามสกุล">
         <label>น้ำหนัก (kg)</label>
@@ -42,7 +57,7 @@
     </div>
 
     <div id="section-bp" class="card">
-        <h2 style="color: #e83e8c;">ความดันโลหิต</h2>
+        <h2 style="color: #e83e8c;">❤️ ความดันโลหิต</h2>
         <label>ความดันตัวบน (SYS)</label>
         <input type="number" id="sys" placeholder="120">
         <label>ความดันตัวล่าง (DIA)</label>
@@ -50,20 +65,23 @@
         <label>ชีพจร (Pulse)</label>
         <input type="number" id="pulse" placeholder="75">
         <button class="btn-pink" onclick="sendData('bp')">บันทึกความดัน</button>
-    </div>
+    </div> 
 
     <div id="section-salt" class="card">
-        <h2 style="color: #ff9800;">🧂 ปริมาณเกลือ</h2>
+        <h2 style="color: #2196F3;">🧂 คำนวณโซเดียม</h2>
         
         <label>ชื่อ-นามสกุล (ผู้ตรวจ)</label>
         <input type="text" id="fullname-salt" placeholder="ระบุชื่อ-นามสกุล">
 
-        <label>ปริมาณที่ทานวันนี้ (ช้อนชา)</label>
-        <input type="number" id="salt" placeholder="เช่น 0.5 หรือ 1" step="0.1">
-        
-        <p style="font-size: 12px; color: #888;">*คำแนะนำ WHO: ไม่เกิน 1 ช้อนชา/วัน</p>
+        <label>รายการเครื่องปรุง (ช้อนชา)</label>
+        <div id="inputs-container"></div> <button class="btn-add-row" onclick="addRow()">+ เพิ่มเครื่องปรุง</button>
+        <button class="btn-calc" onclick="calculateSodium()">คำนวณโซเดียม</button>
 
-        <button style="background-color: #ff9800;" onclick="sendData('salt')">บันทึกเกลือ</button>
+        <div id="result-salt" class="result-box">ยังไม่ได้คำนวณ</div>
+        
+        <input type="hidden" id="final-sodium-mg" value="0">
+
+        <button class="btn-orange" onclick="sendData('salt')">บันทึกผลลงไลน์</button>
     </div>
 
     <div id="status-msg">กำลังเชื่อมต่อ LINE...</div>
