@@ -195,15 +195,15 @@ async function sendData(type) {
         // 🟠 กรณี เกลือ (แบบใหม่ คำนวณโซเดียม)
         else if(type === 'salt') {
             let nameInput = document.getElementById('fullname-salt').value;
-            
+            // ดึงข้อมูลเอารายชื่อเครื่องปรุง
+            let detailString = calculateSodium();
             // ดึงค่าโซเดียมรวมจากตัวแปรซ่อน
             let totalSodium = parseFloat(document.getElementById("final-sodium-mg").value);
-            let detailString = calculateSodium
+          
             if(nameInput === "") throw new Error("กรุณาระบุชื่อ-นามสกุล");
             
             // ถ้ายังไม่ได้คำนวณ ให้คำนวณก่อน 1 รอบ
             if(totalSodium === 0 && document.getElementById("inputs-container").children.length > 0) {
-                 calculateSodium();
                  totalSodium = parseFloat(document.getElementById("final-sodium-mg").value);
             }
 
