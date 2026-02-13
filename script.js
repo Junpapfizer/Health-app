@@ -209,6 +209,8 @@ async function sendData(type) {
 
             data.displayName = nameInput;
             data.salt = totalSodium; // ส่งค่า mg ไป (ใน Sheet อาจจะเก็บเป็นตัวเลข 2000)
+            data.detailList = nameInput // sent data text ingredient to sheet
+
 
             if (totalSodium <= 2000) {
                 summaryMessage = `🧂 บันทึกแล้ว\nโซเดียมรวม: ${totalSodium} mg\n✅ ยังไม่เกินเกณฑ์ที่แนะนำ`;
