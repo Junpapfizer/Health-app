@@ -1,7 +1,7 @@
 // ==========================================
 // ⚙️ ตั้งค่าระบบ
 const LIFF_ID = "2008799065-MIMzWyU2"; 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyq-nuq8pb1wiVYmD3wbpLxagQhfiW28SjXx0uUsHN4zL8FqVM52qkLlghHLVP_hoQ-/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDIgI32ySuJzPCtc_fg4uUh3AZVGz6NyVssh1eOhZwirSULg9pd0SjTavf2q_TOwHI/exec";
 // ==========================================
 
 // ข้อมูลโซเดียม (mg ต่อ 1 ช้อนชา)
@@ -197,6 +197,7 @@ async function sendData(type) {
             let nameInput = document.getElementById('fullname-salt').value;
             // ดึงข้อมูลเอารายชื่อเครื่องปรุง
             let detailString = calculateSodium();
+            alert("")
             // ดึงค่าโซเดียมรวมจากตัวแปรซ่อน
             let totalSodium = parseFloat(document.getElementById("final-sodium-mg").value);
           
