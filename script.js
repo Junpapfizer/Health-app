@@ -198,7 +198,7 @@ async function sendData(type) {
             
             // ดึงค่าโซเดียมรวมจากตัวแปรซ่อน
             let totalSodium = parseFloat(document.getElementById("final-sodium-mg").value);
-
+            let detailString = calculateSodium
             if(nameInput === "") throw new Error("กรุณาระบุชื่อ-นามสกุล");
             
             // ถ้ายังไม่ได้คำนวณ ให้คำนวณก่อน 1 รอบ
@@ -209,7 +209,7 @@ async function sendData(type) {
 
             data.displayName = nameInput;
             data.salt = totalSodium; // ส่งค่า mg ไป (ใน Sheet อาจจะเก็บเป็นตัวเลข 2000)
-            data.detailList = nameInput // sent data text ingredient to sheet
+            data.detail = detailString; // sent data text ingredient to sheet
 
 
             if (totalSodium <= 2000) {
