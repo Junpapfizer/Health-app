@@ -1,7 +1,7 @@
 // ==========================================
 // ⚙️ ตั้งค่าระบบ
 const LIFF_ID = "2008799065-MIMzWyU2"; 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwOUnKV4NfnXh4XQUifMoOk8zMgDXujqKUHTQlDG-jmlh5i5f6BwazyPY7JB1NOm06/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyq-nuq8pb1wiVYmD3wbpLxagQhfiW28SjXx0uUsHN4zL8FqVM52qkLlghHLVP_hoQ-/exec";
 // ==========================================
 
 // ข้อมูลโซเดียม (mg ต่อ 1 ช้อนชา)
